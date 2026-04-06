@@ -1,4 +1,3 @@
-# app/main.py
 from fastapi import FastAPI, HTTPException, Depends, Body
 from app.models import UserRegister, UserLogin
 from app.database import init_db, get_user, add_user, list_all_users
@@ -19,7 +18,7 @@ def register(user: UserRegister):
     if not is_strong_password(user.password):
         raise HTTPException(
             status_code=400,
-            detail="LA contraseña debe tener +8 caracteres, incluir Mayuscula, Minuscula, Numeros"
+            detail="La contraseña debe tener +8 caracteres, incluir Mayuscula, Minuscula, Numeros"
         )
 
     add_user(user.username, hash_password(user.password))
@@ -38,3 +37,6 @@ def login(user: UserLogin):
 @app.get("/users")
 def list_users():
     return {"users":list_all_users()}
+    if not users:
+        return {"users": [], "message": "No hay usuarios registrados todavía"}
+    return {"users": users, "message": f"Total de usuarios registrados: {len(users)}"}
