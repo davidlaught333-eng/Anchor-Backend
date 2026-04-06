@@ -1,0 +1,6 @@
+import os
+
+SECRET_KEY = os.environ.get("SECRET_KEY", "supersecretkey")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+DB_FILE = "users.db"
