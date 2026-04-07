@@ -8,7 +8,7 @@ init_db()
 
 @app.get("/")
 def home():
-    return {"message": "ZenMode API en ejecucion..."}
+    return {"message": "Anchor API en ejecucion..."}
 
 @app.post("/register")
 def register(user: UserRegister):
