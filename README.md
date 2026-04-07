@@ -1,85 +1,84 @@
 Anchor App Backend API (v1.3)
 
 API backend para la aplicación Anchor, encargada de la gestión de usuarios, autenticación y lógica de negocio.
-
-Por: David Felipe Rodriguez Sierra
+Por: David Felipe Rodriguez Sierra 
 
 PRI1 - ICIB
 
-Tecnologías utilizadas
+Tecnologías utilizadas:
 
-Python 3.x
+    -Python 3.x
 
-FastAPI – Framework para construir la API
+    -FastAPI – Framework para construir la API
 
-SQLite – Base de datos ligera local
+    -SQLite – Base de datos ligera local
 
-Pydantic – Validación de datos de entrada
+    -Pydantic – Validación de datos de entrada
 
-bcrypt – Hash de contraseñas
+    -bcrypt – Hash de contraseñas
 
-JWT (JSON Web Tokens) – Autenticación segura
+    -JWT (JSON Web Tokens) – Autenticación segura
 
 
-Funcionalidades
+Funcionalidades:
 
-Registro de usuario (POST /register)
+    -Registro de usuario (POST /register)
 
 Crea un nuevo usuario con:
 
-username (único)
-
-password (contraseña segura)
+    -username (único)
+    
+    -password (contraseña segura)
 
 
 Validación de contraseña:
 
-Al menos 8 caracteres
+    -Al menos 8 caracteres
 
-Al menos una letra mayúscula
+    -Al menos una letra mayúscula
 
-Al menos una letra minúscula
+    -Al menos una letra minúscula
 
-Al menos un número
+    -Al menos un número
 
 Respuesta exitosa:
 
-{"message": "Usuario registrado exitosamente"}
+    {"message": "Usuario registrado exitosamente"}
 
 Errores posibles:
 
-Usuario ya existe
+    Usuario ya existe
 
-Contraseña débil
+    Contraseña débil
 
 
 Inicio de sesión (POST /login)
 
 Permite que un usuario existente inicie sesión con:
 
-username
+    username
 
-password
+    password
 
 Retorna un token JWT en caso de éxito:
 
-{"access_token": "<token_jwt>", "token_type": "bearer"}
+    {"access_token": "<token_jwt>", "token_type": "bearer"}
 
 Errores posibles:
 
-Credenciales inválidas
+    Credenciales inválidas
 
 Listar usuarios (GET /users)
 
 Devuelve un listado de todos los usuarios registrados:
 
-{"users": ["usuario1", "usuario2"]}
+    {"users": ["usuario1", "usuario2"]}
 
 Home (GET /)
 
 Mensaje de bienvenida para verificar que la API está funcionando:
 
-{"message": "ZenMode API en ejecucion..."}
+    {"message": "ZenMode API en ejecucion..."}
 
 Base de datos
 
@@ -87,69 +86,68 @@ Base de datos SQLite: users.db
 
 Tabla users con campos:
 
-id – INTEGER PRIMARY KEY AUTOINCREMENT
+    id – INTEGER PRIMARY KEY AUTOINCREMENT
 
-username – TEXT único, obligatorio
+    username – TEXT único, obligatorio
 
-password – TEXT, obligatorio (almacenado con hash bcrypt)
+    password – TEXT, obligatorio (almacenado con hash bcrypt)
 
 Funciones principales:
 
-init_db() – Inicializa la base de datos y la tabla users
+    -init_db() – Inicializa la base de datos y la tabla users
 
-get_user(username) – Obtiene datos de un usuario
+    -get_user(username) – Obtiene datos de un usuario
 
-add_user(username, hashed_password) – Añade un nuevo usuario
+    -add_user(username, hashed_password) – Añade un nuevo usuario
 
-list_all_users() – Lista todos los usuarios
+    -list_all_users() – Lista todos los usuarios
 
 Autenticación
 
-Tokens JWT creados con clave secreta (SECRET_KEY) y algoritmo HS256
+    Tokens JWT creados con clave secreta (SECRET_KEY) y algoritmo HS256
 
-Expiración: 60 minutos por defecto (ACCESS_TOKEN_EXPIRE_MINUTES)
+    Expiración: 60 minutos por defecto (ACCESS_TOKEN_EXPIRE_MINUTES)
 
-Middleware verify_token valida el token para endpoints protegidos
+    Middleware verify_token valida el token para endpoints protegidos
 
 
 Instalación
 
-git clone https://github.com/davidlaught333-eng/Anchor-Backend.git
+    1. git clone https://github.com/davidlaught333-eng/Anchor-Backend.git
 
-cd anchor-app-backend
+    2. cd anchor-app-backend
 
-python -m venv venv
+    3. python -m venv venv
 
-source venv/bin/activate # Windows: venv\Scripts\activate
+    4. source venv/bin/activate # Windows: venv\Scripts\activate
 
-pip install fastapi uvicorn bcrypt python-jose pydantic
+    5. pip install fastapi uvicorn bcrypt python-jose pydantic
 
 
 Configuración
 
 Archivo .env (opcional):
 
-SECRET_KEY=supersecretkey
+    SECRET_KEY=supersecretkey
 
-ACCESS_TOKEN_EXPIRE_MINUTES=60
+    ACCESS_TOKEN_EXPIRE_MINUTES=60
 
-DB_FILE=users.db
+    DB_FILE=users.db
 
 Ejecución
 
-uvicorn app.main:app --reload
+    uvicorn app.main:app --reload
 
-La API estará disponible en http://localhost:8000
+    La API estará disponible en http://localhost:8000
 
 Modelos de datos
 
-UserRegister (Pydantic)
+    UserRegister (Pydantic)
 
-username: str
+      username: str
+      password: str
 
-password: str
+    UserLogin (Pydantic)
 
-UserLogin (Pydantic)
-
-username: str
-password: str
+      username: str
+      password: str
