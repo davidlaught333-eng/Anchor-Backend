@@ -1,153 +1,175 @@
-Anchor App Backend API (v1.3)
+Anchor App Backend API (v1.4)
 
-API backend para la aplicación Anchor, encargada de la gestión de usuarios, autenticación y lógica de negocio.
-Por: David Felipe Rodriguez Sierra 
+API backend para la aplicación Anchor, encargada de la gestión de usuarios, autenticación y control de acceso basado en roles (RBAC).
 
-PRI1 - ICIB
+Por: David Felipe Rodríguez Sierra
+Curso: PRI1 - ICIB
 
-Tecnologías utilizadas:
+Descripción
 
-    -Python 3.x
+Esta versión introduce un sistema de roles de usuario, permitiendo restringir el acceso a endpoints según permisos.
 
-    -FastAPI – Framework para construir la API
+Roles disponibles:
 
-    -SQLite – Base de datos ligera local
-
-    -Pydantic – Validación de datos de entrada
-
-    -bcrypt – Hash de contraseñas
-
-    -JWT (JSON Web Tokens) – Autenticación segura
-
-
-Funcionalidades:
-
-    -Registro de usuario (POST /register)
+user (por defecto)
+admin
+Tecnologías utilizadas
+Python 3.x
+FastAPI – Framework para construir la API
+SQLite – Base de datos ligera local
+Pydantic – Validación de datos de entrada
+bcrypt – Hash de contraseñas
+JWT (JSON Web Tokens) – Autenticación segura
+Funcionalidades
+Registro de usuario (POST /register)
 
 Crea un nuevo usuario con:
 
-    -username (único)
-    
-    -password (contraseña segura)
+username (único)
+password (segura)
 
+Todos los usuarios se registran con rol user.
 
 Validación de contraseña:
-
-    -Al menos 8 caracteres
-
-    -Al menos una letra mayúscula
-
-    -Al menos una letra minúscula
-
-    -Al menos un número
-
+Al menos 8 caracteres
+Al menos una letra mayúscula
+Al menos una letra minúscula
+Al menos un número
 Respuesta exitosa:
-
-    {"message": "Usuario registrado exitosamente"}
-
+{"message": "Usuario registrado exitosamente"}
 Errores posibles:
-
-    Usuario ya existe
-
-    Contraseña débil
-
-
+Usuario ya existe
+Contraseña débil
 Inicio de sesión (POST /login)
 
-Permite que un usuario existente inicie sesión con:
+Permite autenticación de usuarios registrados.
 
-    username
+Input:
+username
+password
+Respuesta:
+{
+  "access_token": "<token_jwt>",
+  "token_type": "bearer"
+}
 
-    password
+El token incluye:
 
-Retorna un token JWT en caso de éxito:
-
-    {"access_token": "<token_jwt>", "token_type": "bearer"}
-
-Errores posibles:
-
-    Credenciales inválidas
-
+sub (username)
+role (rol del usuario)
 Listar usuarios (GET /users)
 
-Devuelve un listado de todos los usuarios registrados:
+Protegido. Solo accesible por usuarios con rol admin.
 
-    {"users": ["usuario1", "usuario2"]}
+Respuesta:
+{
+  "users": ["usuario1", "usuario2"]
+}
+Cambiar rol de usuario (PUT /users/role)
 
+Protegido. Solo accesible por usuarios con rol admin.
+
+Input:
+{
+  "username": "user1",
+  "role": "admin"
+}
+Respuesta:
+{
+  "message": "Rol de user1 actualizado a admin"
+}
+Errores posibles:
+Rol inválido
+Usuario no existe
+Intento de modificar el propio rol (opcional)
 Home (GET /)
 
-Mensaje de bienvenida para verificar que la API está funcionando:
+Verifica que la API está activa:
 
-    {"message": "ZenMode API en ejecucion..."}
+{"message": "Anchor API en ejecucion..."}
+Setup inicial (POST /setup-admin)
+
+Crea el primer usuario administrador.
+
+{"message": "Admin creado"}
+
+Importante: este endpoint debe eliminarse después del primer uso.
 
 Base de datos
 
-Base de datos SQLite: users.db
+Archivo: users.db
 
-Tabla users con campos:
+Tabla users:
 
-    id – INTEGER PRIMARY KEY AUTOINCREMENT
+id – INTEGER PRIMARY KEY AUTOINCREMENT
+username – TEXT único, obligatorio
+password – TEXT, almacenado con hash bcrypt
+role – TEXT (user o admin)
+Funciones principales
+init_db() – Inicializa la base de datos
+get_user(username) – Obtiene usuario
+add_user(username, password, role) – Crea usuario
+update_user_role(username, role) – Cambia rol
+list_all_users() – Lista usuarios
+Autenticación y autorización
+Tokens JWT firmados con SECRET_KEY y algoritmo HS256
+Expiración configurable (ACCESS_TOKEN_EXPIRE_MINUTES)
+Middleware verify_token valida el token
+Control de acceso basado en roles mediante require_role
+Testing
 
-    username – TEXT único, obligatorio
+Accede a la documentación interactiva:
 
-    password – TEXT, obligatorio (almacenado con hash bcrypt)
+http://localhost:8000/docs
 
-Funciones principales:
+Flujo recomendado:
 
-    -init_db() – Inicializa la base de datos y la tabla users
-
-    -get_user(username) – Obtiene datos de un usuario
-
-    -add_user(username, hashed_password) – Añade un nuevo usuario
-
-    -list_all_users() – Lista todos los usuarios
-
-Autenticación
-
-    Tokens JWT creados con clave secreta (SECRET_KEY) y algoritmo HS256
-
-    Expiración: 60 minutos por defecto (ACCESS_TOKEN_EXPIRE_MINUTES)
-
-    Middleware verify_token valida el token para endpoints protegidos
-
-
+Crear administrador (/setup-admin)
+Iniciar sesión (/login)
+Autorizar usando el token
+Probar endpoints protegidos
 Instalación
+git clone https://github.com/davidlaught333-eng/Anchor-Backend.git
+cd anchor-app-backend
 
-    1. git clone https://github.com/davidlaught333-eng/Anchor-Backend.git
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-    2. cd anchor-app-backend
-
-    3. python -m venv venv
-
-    4. source venv/bin/activate # Windows: venv\Scripts\activate
-
-    5. pip install fastapi uvicorn bcrypt python-jose pydantic
-
-
+pip install fastapi uvicorn bcrypt python-jose pydantic
 Configuración
 
 Archivo .env (opcional):
 
-    SECRET_KEY=supersecretkey
-
-    ACCESS_TOKEN_EXPIRE_MINUTES=60
-
-    DB_FILE=users.db
-
+SECRET_KEY=supersecretkey
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+DB_FILE=users.db
 Ejecución
+uvicorn app.main:app --reload
 
-    uvicorn app.main:app --reload
-
-    La API estará disponible en http://localhost:8000
+Disponible en:
+http://localhost:8000
 
 Modelos de datos
+UserRegister
+username: str
+password: str
+UserLogin
+username: str
+password: str
+UpdateRole
+username: str
+role: str
+Consideraciones de seguridad
+No permitir selección de rol en /register
+Eliminar /setup-admin en producción
+Usar un SECRET_KEY seguro
+Los tokens JWT son stateless (requieren re-login tras cambios de rol)
+Roadmap futuro
+Refresh tokens
+Sistema de permisos granular
+Migración a PostgreSQL
+Dockerización
+Logs y auditoría
+Versión
 
-    UserRegister (Pydantic)
-
-      username: str
-      password: str
-
-    UserLogin (Pydantic)
-
-      username: str
-      password: str
+v1.4 – Role-Based Access Control (RBAC)

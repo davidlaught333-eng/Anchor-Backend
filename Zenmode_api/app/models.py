@@ -7,3 +7,7 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+
+class UpdateRole(BaseModel):
+    username: str
+    role: str

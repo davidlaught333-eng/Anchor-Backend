@@ -34,10 +34,23 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
-        if username is None:
+        role = payload.get("role")
+
+        if username is None or role is None:
             raise HTTPException(status_code=401, detail="Invalid token payload")
-        return username
+
+        return {"username": username, "role": role}
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    
+
+def require_role(required_role: str):
+    def role_checker(user=Depends(verify_token)):
+        print("USER:", user)
+        if user["role"] != required_role:
+            raise HTTPException(status_code=403, detail="No tienes permisos")
+        return user
+    return role_checker
